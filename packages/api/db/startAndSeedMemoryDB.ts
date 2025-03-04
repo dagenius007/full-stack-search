@@ -7,7 +7,7 @@ import { hotels } from "./seeds/hotels";
 const mongod = await MongoMemoryServer.create({
   instance: {
     port: 3002,
-  }
+  },
 });
 console.log("MongoMemoryServer started on", mongod.getUri());
 
@@ -22,13 +22,22 @@ try {
   await db.collection("cities").insertMany(cities);
   await db.collection("countries").insertMany(countries);
   await db.collection("hotels").insertMany(hotels);
+
+  await db.collection("hotels").createIndex({
+    chain_name: "text",
+    hotel_name: "text",
+    country: "text",
+    city: "text",
+  });
+  await db.collection("countries").createIndex({ country: "text" });
+  await db.collection("cities").createIndex({ name: "text" });
 } catch (error) {
   console.error("Error seeding database:", error);
 } finally {
   await client.close();
 }
 
-process.on('SIGTERM', async () => {
+process.on("SIGTERM", async () => {
   await mongod.stop();
   process.exit(0);
 });

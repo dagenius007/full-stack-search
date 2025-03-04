@@ -14,6 +14,7 @@
     "api-no-watch": "npm run -w api dev:no-watch"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "jsdom": "^24.1.3"
   }
 }

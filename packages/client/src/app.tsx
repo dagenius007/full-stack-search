@@ -1,38 +1,36 @@
-import { useState, type ChangeEvent } from 'react';
-import { getCodeSandboxHost } from "@codesandbox/utils";
-
-type Hotel = { _id: string, chain_name: string; hotel_name: string; city: string, country: string };
-
-const codeSandboxHost = getCodeSandboxHost(3001)
-const API_URL = codeSandboxHost ? `https://${codeSandboxHost}` : 'http://localhost:3001'
-
-const fetchAndFilterHotels = async (value: string) => {
-  const hotelsData = await fetch(`${API_URL}/hotels`);
-  const hotels = (await hotelsData.json()) as Hotel[];
-  return hotels.filter(
-    ({ chain_name, hotel_name, city, country }) =>
-      chain_name.toLowerCase().includes(value.toLowerCase()) ||
-      hotel_name.toLowerCase().includes(value.toLowerCase()) ||
-      city.toLowerCase().includes(value.toLowerCase()) ||
-      country.toLowerCase().includes(value.toLowerCase())
-  );
-}
+import { useState, type ChangeEvent } from "react";
+import useDebounce from "./hooks/useDebounce";
+import useSearch from "./hooks/useSearch";
+import SearchItem from "./components/search-item";
+import Input from "./components/input";
 
 function App() {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [value, setValue] = useState("");
   const [showClearBtn, setShowClearBtn] = useState(false);
+  const debounceValue = useDebounce(value);
+  const {
+    searchResult: { hotels, countries, cities },
+    isLoading,
+    error,
+  } = useSearch(debounceValue);
 
-  const fetchData = async (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value === '') {
-      setHotels([]);
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setValue(value);
+    if (value === "") {
       setShowClearBtn(false);
       return;
     }
-
-    const filteredHotels = await fetchAndFilterHotels(event.target.value)
     setShowClearBtn(true);
-    setHotels(filteredHotels);
   };
+
+  if (error) {
+    // basic window toast
+    console.error(error);
+  }
+
+  const hasSearchResults =
+    hotels.length > 0 || countries.length > 0 || cities.length > 0;
 
   return (
     <div className="App">
@@ -40,36 +38,36 @@ function App() {
         <div className="row height d-flex justify-content-center align-items-center">
           <div className="col-md-6">
             <div className="dropdown">
-              <div className="form">
-                <i className="fa fa-search"></i>
-                <input
-                  type="text"
-                  className="form-control form-input"
-                  placeholder="Search accommodation..."
-                  onChange={fetchData}
-                />
-                {showClearBtn && (
-                  <span className="left-pan">
-                    <i className="fa fa-close"></i>
-                  </span>
-                )}
-              </div>
-              {!!hotels.length && (
-                <div className="search-dropdown-menu dropdown-menu w-100 show p-2">
-                  <h2>Hotels</h2>
-                  {hotels.length ? hotels.map((hotel, index) => (
-                    <li key={index}>
-                      <a href={`/hotels/${hotel._id}`} className="dropdown-item">
-                        <i className="fa fa-building mr-2"></i>
-                        {hotel.hotel_name}
-                      </a>
-                      <hr className="divider" />
-                    </li>
-                  )) : <p>No hotels matched</p>}
-                  <h2>Countries</h2>
-                  <p>No countries matched</p>
-                  <h2>Cities</h2>
-                  <p>No cities matched</p>
+              <Input
+                onChange={handleChange}
+                value={value}
+                showClearBtn={showClearBtn}
+                isLoading={isLoading}
+                handleClear={() => {
+                  setValue("");
+                  setShowClearBtn(false);
+                }}
+              />
+              {hasSearchResults && (
+                <div
+                  className="search-dropdown-menu dropdown-menu w-100 show p-2"
+                  data-testid="search-result"
+                >
+                  <SearchItem
+                    header="Hotels"
+                    results={hotels}
+                    emptyStateText="No hotels matched"
+                  />
+                  <SearchItem
+                    header="Countries"
+                    results={countries}
+                    emptyStateText="No countries matched"
+                  />
+                  <SearchItem
+                    header="Cities"
+                    results={cities}
+                    emptyStateText="No cities matched"
+                  />
                 </div>
               )}
             </div>

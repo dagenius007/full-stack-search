@@ -80,8 +80,8 @@ When clicking on one of the `Hotels`, `Cities` or `Countries` links, the applica
 
 ### Limitations
 
-Given the time constraints, we do not expect a fully production-ready solution. We're primarily interested in the approach and the overall quality of the solution. 
-Feel free to modify the current codebase as needed, including adding or removing dependencies. 
+Given the time constraints, we do not expect a fully production-ready solution. We're primarily interested in the approach and the overall quality of the solution.
+Feel free to modify the current codebase as needed, including adding or removing dependencies.
 For larger or more time-intensive changes, you're welcome to outline your ideas in the write-up section below and discuss them further during the call.
 
 <img src="./assets/search-example.png" width="400px" />
@@ -140,3 +140,19 @@ _When all the behaviour is implemented, feel free to add some observations or co
   }
 ]
 ```
+
+### Observations
+
+#### Client
+
+- Filtering is done on the client side which is inappropriate for large datasets.
+- Add debounce to the search input for the values to be sent to the server.
+- Created reusable components for the search input and the search results.
+- Use custom hooks for fetching data from the server and debounce function.
+
+#### Server
+
+- Added indexes to the database for faster queries.
+- Added catch block to the request to handle errors.
+- Structured the projects
+- Added more test cases
