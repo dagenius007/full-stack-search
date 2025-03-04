@@ -149,6 +149,7 @@ _When all the behaviour is implemented, feel free to add some observations or co
 - Add debounce to the search input for the values to be sent to the server.
 - Created reusable components for the search input and the search results.
 - Use custom hooks for fetching data from the server and debounce function.
+- Added loading state
 
 #### Server
 
